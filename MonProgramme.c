@@ -63,4 +63,25 @@ float bisection(float a, float b, float eps, int max_iter, int *iterations) {
     return (a + b) / 2; // Return midpoint as best estimate
 }
 
+// Writing my results
+void write_iv_file(const char *filename){
+    FILE *fp = fopen(filename, "w");
+    if(!fp) {
+        perror("fopen");
+        return;
+    }
+    fprintf(fp, "# U[V]    I_diode[A]     I_generator[A]\n");
+    for(int i=0; i<=100; i++ ){
+        float U = i * 0.1;
+        float Id = Is * (expf(U * (n / V0)) - 1);
+        float Ig = (E - U) / R;
+        fprintf(fp, "%.2f %.12e %.12e\n", U, Id, Ig);
+    }
+    fclose(fp);
+}
+
+int main(void){
+    
+
+}
 
