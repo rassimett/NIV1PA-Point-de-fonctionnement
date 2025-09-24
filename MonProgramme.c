@@ -5,24 +5,25 @@ const float n= 0.68, E= 1.0, R= 100.0, Is= 1e-15, V0= 0.025;
 
 // Coding the function: f(U) = E - U - R * Is * (exp(U*(n/V0)) - 1) 
 float f(float U) {
-    float expo = expf(U * (n / V0));
+    float expo = exp(U * (n / V0));
     return E - U - R * Is * (expo - 1);
 }
 
 // Coding the derivative of the function: f'(U) = -1 - (R * Is * (n / V0)) * expo
 float df(float U) {
-    float expo = expf(U * (n / V0));
+    float expo = exp(U * (n / V0));
     return -1 - (R * Is * (n / V0)) * expo;
 }
 
-// Newton method. Returns root estimate. iterations is output. If it fails, returns NAN.
+// Newton method. Returns root estimate. 'iterations' is output. 
+// If it fails to converge, returns the last estimate.
 float newton(float U0, int max_iter, float eps, int *iterations) {
     float U = U0;
     for (int i = 0; i < max_iter; i++) {
         float fU = f(U);
         float dfU = df(U);
         if (fabs(dfU) <  1e-12) {
-            *iterations = i + 1;
+            *iterations = i;
             return NAN; 
         }
         float U_next = U - fU / dfU;
@@ -73,7 +74,7 @@ void write_iv_file(const char *filename){
     fprintf(fp, "# U[V]    I_diode[A]     I_generator[A]\n");
     for(int i=0; i<=100; i++ ){
         float U = i * 0.1;
-        float Id = Is * (expf(U * (n / V0)) - 1);
+        float Id = Is * (exp(U * (n / V0)) - 1);
         float Ig = (E - U) / R;
         fprintf(fp, "%.2f %.12e %.12e\n", U, Id, Ig);
     }
@@ -81,7 +82,16 @@ void write_iv_file(const char *filename){
 }
 
 int main(void){
-    
+    const float eps = 1e-6;
+    const int max_iter = 1000;
 
+    int it_newton = 0;
+    float initial_guess = 0.7;
+    float root_newton = newton(initial_guess, max_iter, eps, &it_newton);
+
+    int it_bisect = 0;
+    float root_bisect = bisection(0.0, 1.0, eps, max_iter, &it_bisect);
+
+    
 }
 
